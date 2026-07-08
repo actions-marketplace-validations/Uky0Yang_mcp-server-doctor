@@ -50,7 +50,7 @@ outputs:
 runs:
   using: composite
   steps:
-    - uses: actions/setup-python@v5
+    - uses: actions/setup-python@v6.3.0
       with:
         python-version: ${{ inputs.python-version }}
 
@@ -76,7 +76,7 @@ runs:
 
     - name: Upload SARIF
       if: ${{ inputs.upload-results == 'true' }}
-      uses: github/codeql-action/upload-sarif@v3
+      uses: github/codeql-action/upload-sarif@v4
       with:
         sarif_file: ${{ inputs.sarif-file }}
         category: mcp-server-doctor

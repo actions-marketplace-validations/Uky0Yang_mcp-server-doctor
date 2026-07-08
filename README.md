@@ -173,7 +173,7 @@ jobs:
   mcp-doctor:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7.0.0
       - uses: Uky0Yang/mcp-server-doctor@v0.2.0
         with:
           path: .
@@ -197,8 +197,8 @@ jobs:
   mcp-doctor:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7.0.0
+      - uses: actions/setup-python@v6.3.0
         with:
           python-version: "3.12"
       - run: python -m pip install mcp-server-doctor
