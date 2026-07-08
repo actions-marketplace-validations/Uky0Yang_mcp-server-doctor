@@ -1,0 +1,23 @@
+name: Check request
+description: Suggest a new MCP config diagnostic
+title: "[Check]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: failure
+    attributes:
+      label: Failure mode
+      description: What real MCP setup problem should this catch?
+    validations:
+      required: true
+  - type: textarea
+    id: example
+    attributes:
+      label: Example config
+      description: Paste a safe, redacted example.
+      render: json
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected diagnostic
+      description: What should the tool report?

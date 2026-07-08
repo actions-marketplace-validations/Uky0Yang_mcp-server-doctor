@@ -1,0 +1,28 @@
+name: Bug report
+description: Report a wrong diagnostic, crash, or MCP probe failure
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened?
+      description: Describe the behavior and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: config
+    attributes:
+      label: Minimal config
+      description: Paste a redacted MCP config. Remove tokens and private paths.
+      render: json
+  - type: textarea
+    id: output
+    attributes:
+      label: Command output
+      render: text
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      placeholder: mcp-server-doctor 0.1.0
