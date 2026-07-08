@@ -64,6 +64,12 @@ Return JSON for CI or editor integrations:
 mcp-server-doctor doctor . --format json
 ```
 
+Write SARIF for GitHub code scanning:
+
+```bash
+mcp-server-doctor check . --format sarif --output mcp-server-doctor.sarif
+```
+
 Short alias:
 
 ```bash
@@ -148,6 +154,36 @@ Large generated folders such as `.git`, `node_modules`, `dist`, `build`, and vir
 
 ## CI
 
+Use the packaged GitHub Action:
+
+```yaml
+name: MCP config check
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  mcp-doctor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: Uky0Yang/mcp-server-doctor@v0.2.0
+        with:
+          path: .
+          command: check
+          upload-results: "true"
+          warnings-as-errors: "true"
+```
+
+Or install the CLI directly:
+
 ```yaml
 name: MCP config check
 
@@ -170,6 +206,25 @@ jobs:
 ```
 
 Use `check` in CI unless your workflow intentionally installs and starts every configured MCP server.
+
+## PyPI Release
+
+This repository is prepared for PyPI Trusted Publishing. Configure a pending publisher on PyPI with:
+
+- Project: `mcp-server-doctor`
+- Owner: `Uky0Yang`
+- Repository: `mcp-server-doctor`
+- Workflow: `release.yml`
+- Environment: `pypi`
+
+Then publish with:
+
+```bash
+git tag v0.2.0
+git push origin v0.2.0
+```
+
+See [docs/publishing.md](docs/publishing.md).
 
 ## Exit Codes
 

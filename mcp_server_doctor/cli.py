@@ -10,6 +10,7 @@ from .checks import has_blocking_errors, run_static_checks
 from .config import discover_config_paths, load_config
 from .models import ConfigDocument, Finding, ProbeResult, ServerSpec
 from .probe import probe_stdio_server
+from .sarif import build_sarif
 
 COMMANDS = {"check", "doctor", "list"}
 
@@ -39,14 +40,16 @@ def build_parser() -> argparse.ArgumentParser:
 
     check = subparsers.add_parser("check", help="Run static checks on MCP config files.")
     check.add_argument("paths", nargs="*", help="Config files or directories to scan. Defaults to current directory.")
-    check.add_argument("--format", choices=("text", "json"), default="text")
+    check.add_argument("--format", choices=("text", "json", "sarif"), default="text")
+    check.add_argument("--output", help="Write json or sarif output to this file instead of stdout.")
     check.add_argument("--warnings-as-errors", action="store_true")
 
     doctor = subparsers.add_parser("doctor", help="Run static checks and stdio protocol probes.")
     doctor.add_argument("paths", nargs="*", help="Config files or directories to scan. Defaults to current directory.")
     doctor.add_argument("--server", action="append", help="Only probe this server name. Can be repeated.")
     doctor.add_argument("--timeout", type=float, default=8.0, help="Seconds to wait for each MCP response.")
-    doctor.add_argument("--format", choices=("text", "json"), default="text")
+    doctor.add_argument("--format", choices=("text", "json", "sarif"), default="text")
+    doctor.add_argument("--output", help="Write json or sarif output to this file instead of stdout.")
     doctor.add_argument("--warnings-as-errors", action="store_true")
 
     list_cmd = subparsers.add_parser("list", help="List discovered MCP config files and servers.")
@@ -74,17 +77,19 @@ def _cmd_check(args: argparse.Namespace) -> int:
     documents = _load_documents(args.paths)
     findings = _all_static_findings(documents)
     if args.format == "json":
-        print(
-            json.dumps(
-                {
-                    "ok": _is_ok(findings, args.warnings_as_errors),
-                    "configs": [doc.to_dict() for doc in documents],
-                    "findings": [finding.to_dict() for finding in findings],
-                },
-                indent=2,
-            )
+        _emit_structured(
+            {
+                "ok": _is_ok(findings, args.warnings_as_errors),
+                "configs": [doc.to_dict() for doc in documents],
+                "findings": [finding.to_dict() for finding in findings],
+            },
+            args.output,
         )
+    elif args.format == "sarif":
+        _emit_structured(build_sarif(findings, root=Path.cwd()), args.output)
     else:
+        if args.output:
+            raise SystemExit("--output is only supported with --format json or --format sarif")
         _print_static_report(documents, findings)
     return _exit_code(findings, args.warnings_as_errors)
 
@@ -102,18 +107,20 @@ def _cmd_doctor(args: argparse.Namespace) -> int:
             probes.append(probe_stdio_server(server, timeout=args.timeout))
 
     if args.format == "json":
-        print(
-            json.dumps(
-                {
-                    "ok": _is_ok(findings, args.warnings_as_errors) and all(probe.ok for probe in probes),
-                    "configs": [doc.to_dict() for doc in documents],
-                    "findings": [finding.to_dict() for finding in findings],
-                    "probes": [probe.to_dict() for probe in probes],
-                },
-                indent=2,
-            )
+        _emit_structured(
+            {
+                "ok": _is_ok(findings, args.warnings_as_errors) and all(probe.ok for probe in probes),
+                "configs": [doc.to_dict() for doc in documents],
+                "findings": [finding.to_dict() for finding in findings],
+                "probes": [probe.to_dict() for probe in probes],
+            },
+            args.output,
         )
+    elif args.format == "sarif":
+        _emit_structured(build_sarif(findings, probes=probes, root=Path.cwd()), args.output)
     else:
+        if args.output:
+            raise SystemExit("--output is only supported with --format json or --format sarif")
         _print_static_report(documents, findings)
         if has_blocking_errors(findings):
             print("\nProbe skipped because static errors were found.")
@@ -157,6 +164,15 @@ def _is_ok(findings: tuple[Finding, ...], warnings_as_errors: bool) -> bool:
 
 def _exit_code(findings: tuple[Finding, ...], warnings_as_errors: bool) -> int:
     return 1 if not _is_ok(findings, warnings_as_errors) else 0
+
+
+def _emit_structured(payload: dict[str, object], output: str | None) -> None:
+    text = json.dumps(payload, indent=2)
+    if output:
+        Path(output).parent.mkdir(parents=True, exist_ok=True)
+        Path(output).write_text(text + "\n", encoding="utf-8")
+    else:
+        print(text)
 
 
 def _print_static_report(documents: list[ConfigDocument], findings: tuple[Finding, ...]) -> None:

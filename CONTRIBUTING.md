@@ -15,6 +15,7 @@ Thanks for improving `mcp-server-doctor`.
 python -m pip install -e .
 python -m unittest discover -s tests
 mcp-server-doctor check . --warnings-as-errors
+mcp-server-doctor check . --format sarif --output mcp-server-doctor.sarif
 ```
 
 ## Pull Request Expectations

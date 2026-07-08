@@ -76,6 +76,31 @@ class ProbeAndCliTest(unittest.TestCase):
 
             self.assertEqual(main(["check", str(config), "--format", "json"]), 0)
 
+    def test_cli_writes_sarif_output_file(self) -> None:
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            config = root / "mcp.json"
+            output = root / "report.sarif"
+            config.write_text(
+                json.dumps(
+                    {
+                        "mcpServers": {
+                            "bad": {
+                                "command": "definitely-not-a-real-command",
+                            }
+                        }
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            exit_code = main(["check", str(config), "--format", "sarif", "--output", str(output)])
+            payload = json.loads(output.read_text(encoding="utf-8"))
+
+            self.assertEqual(exit_code, 1)
+            self.assertEqual(payload["version"], "2.1.0")
+            self.assertEqual(payload["runs"][0]["results"][0]["ruleId"], "command-not-found")
+
     def test_installed_module_help(self) -> None:
         result = subprocess.run(
             [sys.executable, "-m", "mcp_server_doctor", "--help"],

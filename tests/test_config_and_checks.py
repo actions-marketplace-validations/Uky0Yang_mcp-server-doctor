@@ -6,6 +6,7 @@ from tempfile import TemporaryDirectory
 
 from mcp_server_doctor.checks import run_static_checks
 from mcp_server_doctor.config import discover_config_paths, load_config
+from mcp_server_doctor.sarif import build_sarif
 
 
 class ConfigAndChecksTest(unittest.TestCase):
@@ -77,6 +78,33 @@ class ConfigAndChecksTest(unittest.TestCase):
             found = discover_config_paths([str(root)])
 
             self.assertEqual(found, [root / ".cursor" / "mcp.json"])
+
+    def test_sarif_contains_warning_rules_but_skips_info(self) -> None:
+        with TemporaryDirectory() as tmp:
+            config = Path(tmp) / "mcp.json"
+            config.write_text(
+                json.dumps(
+                    {
+                        "mcpServers": {
+                            "filesystem": {
+                                "command": sys.executable,
+                                "args": ["-m", "example"],
+                                "env": {"EXAMPLE_TOKEN": "literal-secret-value"},
+                            }
+                        }
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            sarif = build_sarif(run_static_checks(load_config(config)), root=Path(tmp))
+            run = sarif["runs"][0]
+            rule_ids = {rule["id"] for rule in run["tool"]["driver"]["rules"]}
+            result_rule_ids = {result["ruleId"] for result in run["results"]}
+
+            self.assertIn("literal-secret-env", rule_ids)
+            self.assertIn("literal-secret-env", result_rule_ids)
+            self.assertNotIn("no-configs-found", result_rule_ids)
 
 
 if __name__ == "__main__":

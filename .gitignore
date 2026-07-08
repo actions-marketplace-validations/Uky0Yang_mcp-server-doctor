@@ -12,6 +12,7 @@ dist/
 .DS_Store
 *.log
 *.tmp
+*.sarif
 .env
 .env.*
 !.env.example

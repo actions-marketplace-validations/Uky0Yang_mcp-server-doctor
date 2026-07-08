@@ -1,0 +1,23 @@
+name: MCP Config Code Scanning
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  mcp-sarif:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./
+        with:
+          path: .
+          command: check
+          upload-results: "true"
+          fail-on-findings: "false"

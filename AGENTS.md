@@ -18,6 +18,7 @@ Run before committing:
 ```bash
 python -m unittest discover -s tests
 python -m mcp_server_doctor check . --warnings-as-errors
+python -m mcp_server_doctor check . --format sarif --output mcp-server-doctor.sarif
 ```
 
 ## Release Notes

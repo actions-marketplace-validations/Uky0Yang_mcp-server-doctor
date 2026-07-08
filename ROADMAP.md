@@ -7,14 +7,19 @@
 - Secret, command, shell wrapper, cwd, Docker volume, and package pinning checks.
 - JSON output for CI and editor integrations.
 
+## 0.2
+
+- SARIF output for GitHub code scanning.
+- Composite GitHub Action wrapper.
+- PyPI Trusted Publishing workflow.
+- `--output` support for structured reports.
+
 ## Next
 
 - `--fix` suggestions for safe mechanical edits.
-- SARIF output for GitHub code scanning.
 - More client config discovery for Claude Code, Windsurf, JetBrains IDEs, and VS Code profiles.
 - Better support for Streamable HTTP and OAuth metadata validation.
-- GitHub Action wrapper.
-- PyPI release automation.
+- First PyPI release after pending publisher is configured.
 
 ## Later
 

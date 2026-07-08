@@ -23,3 +23,5 @@ jobs:
         run: python -m unittest discover -s tests
       - name: Run doctor on itself
         run: mcp-server-doctor check . --warnings-as-errors
+      - name: Generate SARIF
+        run: mcp-server-doctor check . --format sarif --output mcp-server-doctor.sarif
