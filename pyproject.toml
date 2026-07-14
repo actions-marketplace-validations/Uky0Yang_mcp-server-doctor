@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "mcp-server-doctor"
 version = "0.2.0"
-description = "Diagnose MCP server configs before Claude, Cursor, Copilot, or your agent fails to load tools."
+description = "Diagnose MCP client configs, local process startup, and stdio handshakes before tools fail to load."
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"

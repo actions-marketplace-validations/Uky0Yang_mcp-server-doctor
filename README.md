@@ -1,10 +1,12 @@
 # mcp-server-doctor
 
-Diagnose MCP server configs before Claude, Cursor, Copilot, or your coding agent fails to load tools.
+Diagnose the **MCP client-to-server boundary**: configuration discovery, process launch, and the stdio JSON-RPC handshake that must succeed before tools can load.
 
-`mcp-server-doctor` is a dependency-free Python CLI for people who install local Model Context Protocol servers and then get stuck with broken `mcp.json`, missing commands, hidden startup errors, or empty tool lists.
+`mcp-server-doctor` is a dependency-free Python CLI for people who configure local Model Context Protocol servers in Claude, Cursor, Copilot, VS Code, or another agent client and then see missing commands, hidden startup failures, or empty tool lists.
 
-It checks MCP config files statically and can launch local stdio servers to run the same basic handshake a client needs: `initialize`, `notifications/initialized`, and capability listing such as `tools/list`.
+It statically checks client configuration and can launch a configured local stdio process to verify `initialize`, `notifications/initialized`, and advertised capability listing such as `tools/list`.
+
+> This is not a generic MCP server test client. It focuses on failures that happen **before tool invocation**: locating client config, resolving the executable and working directory, starting the process, preserving JSON-RPC stdout framing, and completing the stdio handshake.
 
 ## Why This Exists
 
@@ -16,17 +18,36 @@ MCP adoption is moving quickly across AI coding tools, IDEs, and desktop assista
 - Tokens often get pasted into config files during troubleshooting.
 - Server logs accidentally written to stdout can break JSON-RPC.
 
-This tool gives developers and maintainers a fast preflight check before opening the AI client.
+This tool gives developers and maintainers a fast preflight check for the exact boundary where an MCP client tries to start and discover a local server.
+
+| In scope | Out of scope |
+| --- | --- |
+| Client config discovery and validation | Testing whether individual MCP tools are semantically correct |
+| Command, package, environment, cwd, and shell-wrapper checks | Acting as an interactive MCP tool runner |
+| Local process startup and stdio JSON-RPC framing | Dynamic testing of remote HTTP or OAuth transports |
+| Initialize and advertised capability listing | Security approval for calling a discovered tool |
 
 ## Install
 
-From this repository:
+Run without installing:
+
+```bash
+uvx mcp-server-doctor check .
+```
+
+Or install the isolated CLI:
+
+```bash
+pipx install mcp-server-doctor
+```
+
+For local development:
 
 ```bash
 python -m pip install -e .
 ```
 
-After PyPI release:
+Standard pip installation:
 
 ```bash
 python -m pip install mcp-server-doctor

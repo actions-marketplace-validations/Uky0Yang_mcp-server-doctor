@@ -1,5 +1,5 @@
 name: mcp-server-doctor
-description: Diagnose MCP server configs and optionally upload SARIF to GitHub code scanning.
+description: Diagnose MCP client configs and stdio startup handshakes, with optional SARIF upload.
 
 branding:
   icon: activity
