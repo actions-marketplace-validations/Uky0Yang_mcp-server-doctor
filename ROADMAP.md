@@ -20,7 +20,7 @@
 - `--fix` suggestions for safe mechanical edits.
 - More client config discovery for Claude Code, Windsurf, JetBrains IDEs, and VS Code profiles.
 - Better support for Streamable HTTP and OAuth metadata validation.
-- Publish the existing Action in GitHub Actions Marketplace.
+- Published: [GitHub Actions Marketplace](https://github.com/marketplace/actions/mcp-server-doctor), verified 2026-09-16.
 
 ## Later
 

@@ -1,5 +1,7 @@
 # mcp-server-doctor
 
+[Available on GitHub Actions Marketplace](https://github.com/marketplace/actions/mcp-server-doctor) — use `Uky0Yang/mcp-server-doctor@v0.2.0` in CI. Configuration checks are static by default; only enable process probes for servers you trust.
+
 Diagnose the **MCP client-to-server boundary**: configuration discovery, process launch, and the stdio JSON-RPC handshake that must succeed before tools can load.
 
 `mcp-server-doctor` is a dependency-free Python CLI for people who configure local Model Context Protocol servers in Claude, Cursor, Copilot, VS Code, or another agent client and then see missing commands, hidden startup failures, or empty tool lists.
